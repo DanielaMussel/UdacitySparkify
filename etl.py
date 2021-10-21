@@ -6,6 +6,9 @@ from sql_queries import *
 
 
 def process_song_file(cur, filepath):
+    """
+    reads data out of song file and populates the tables songs and artists
+    """
     # open song file
     df = pd.read_json(filepath, lines=True)
 
@@ -20,6 +23,9 @@ def process_song_file(cur, filepath):
 
 
 def process_log_file(cur, filepath):
+    """
+    reads logfile data and populates the tables time, users, songplays
+    """
     # open log file
     df = pd.read_json(filepath, lines= True)
 
@@ -40,6 +46,8 @@ def process_log_file(cur, filepath):
 
     # load user table
     user_df = df[['userId', 'firstName', 'lastName', 'gender', 'level']]
+    # drop duplicate entries
+    user_df= user_df.drop_duplicates()
 
     # insert user records
     for i, row in user_df.iterrows():
@@ -64,6 +72,9 @@ def process_log_file(cur, filepath):
 
 
 def process_data(cur, conn, filepath, func):
+    """
+    reads all files and combines them to one set
+    """
     # get all files matching extension from directory
     all_files = []
     for root, dirs, files in os.walk(filepath):
@@ -89,6 +100,7 @@ def main():
     process_data(cur, conn, filepath='data/song_data', func=process_song_file)
     process_data(cur, conn, filepath='data/log_data', func=process_log_file)
 
+    conn.commit()
     conn.close()
 
 
